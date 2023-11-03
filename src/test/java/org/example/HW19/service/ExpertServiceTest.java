@@ -1,5 +1,6 @@
 package org.example.HW19.service;
 
+import org.example.HW19.entity.Duty;
 import org.example.HW19.entity.Expert;
 import org.example.HW19.entity.UnderDuty;
 import org.example.HW19.entity.User;
@@ -41,18 +42,21 @@ class ExpertServiceTest {
     @Autowired
     private ConvertUrlToByteArray convertUrlToByteArray;
 
+    @Autowired
+    private DutyService dutyService;
+
     private Expert expert;
 
     @BeforeEach
     void setUp() throws IOException {
-        User user = userService.findById(2);
+        //User user = userService.findById(2);
 
         expert = Expert.builder()
                 .status(NEW)
                 .imageUrl(convertUrlToByteArray.convertToByteArray("C:\\Users\\Sarai\\Pictures\\11-04-2022 16.52_1_2.jpg"))
                 .validity(100_000L)
                 .score(0)
-                .user(user).build();
+                .build();
     }
 
     @DisplayName("JUnit test for saveExpert method.")
@@ -90,6 +94,8 @@ class ExpertServiceTest {
     @Test
     @Order(4)
     void saveExpertImage() throws IOException {
+        User savedExpertUser = userService.register(User.builder().email("sk@gmail.com").lastname("11-04-2022 16.52_1_2").build());
+        expert.setUser(savedExpertUser);
         expertService.saveExpertImage(expert.getUser().getEmail());
 
         Path path = Paths.get("C:\\Users\\Sarai\\Documents\\HW19\\src\\main\\java\\org\\example\\HW19\\images\\" + expert.getUser().getLastname() + ".jpg");
@@ -111,11 +117,15 @@ class ExpertServiceTest {
     @Test
     @Order(6)
     void addExpertToUnderDuty() {
-        Expert foundedExpert = expertService.findById(1L);
-        UnderDuty underDuty = underDutyService.findById(1L);
-        expertService.addExpertToUnderDuty(foundedExpert, underDuty);
+//        Expert foundedExpert = expertService.findById(1L);
+//        UnderDuty underDuty = underDutyService.findById(1L);
+        Expert savedExpertUser = expertService.save(Expert.builder().build());
+//        expert.setUser(savedExpertUser);
+        Duty duty = dutyService.save(Duty.builder().name("Cleaning").build());
+        UnderDuty underDuty = underDutyService.save(UnderDuty.builder().name("Washing carpets").duty(duty).build());
+        expertService.addExpertToUnderDuty(savedExpertUser, underDuty);
 
-        Expert newExpert = expertService.update(foundedExpert);
+        Expert newExpert = expertService.update(savedExpertUser);
         assertThat(newExpert.getUnderDutySet()).isNotEmpty();
     }
 

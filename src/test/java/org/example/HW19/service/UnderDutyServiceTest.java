@@ -1,13 +1,20 @@
 package org.example.HW19.service;
 
+import org.example.HW19.entity.Customer;
 import org.example.HW19.entity.Duty;
+import org.example.HW19.entity.Expert;
 import org.example.HW19.entity.UnderDuty;
 import org.example.HW19.exceptions.UnderDutyExistException;
 import org.example.HW19.exceptions.UnderDutyNotFoundException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +34,13 @@ class UnderDutyServiceTest {
     private UnderDuty kitchenAppliances;
 
     private UnderDuty houseSpraying;
+
+    @BeforeAll
+    static void setUp( @Autowired DutyService dutyService) {
+        Duty dutyOne = dutyService.save(Duty.builder().name("One").build());
+        Duty dutyTwo = dutyService.save(Duty.builder().name("Two").build());
+        Duty dutyThree = dutyService.save(Duty.builder().name("Three").build());
+    }
 
     @BeforeEach
     void setUp() {

@@ -1,9 +1,6 @@
 package org.example.HW19.service;
 
-import org.example.HW19.entity.Customer;
-import org.example.HW19.entity.Offers;
-import org.example.HW19.entity.Orders;
-import org.example.HW19.entity.UnderDuty;
+import org.example.HW19.entity.*;
 import org.example.HW19.exceptions.DateAndTimeException;
 import org.example.HW19.exceptions.LessProposedPriceException;
 import org.example.HW19.exceptions.OrderNotFoundException;
@@ -29,8 +26,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OrdersServiceTest {
 
+
     @BeforeAll
-    static void setUp(@Autowired DataSource dataSource) {
+    static void setUp(@Autowired DataSource dataSource,@Autowired  ExpertService expertService,
+                      @Autowired CustomerService customerService, @Autowired DutyService dutyService,
+                      @Autowired UnderDutyService underDutyService) {
+        Expert expert = expertService.save(Expert.builder().build());
+        Customer customer = customerService.save(Customer.builder().build());
+        Duty duty = dutyService.save(Duty.builder().build());
+        UnderDuty underDuty = underDutyService.save(UnderDuty.builder().basePrice(5000L).duty(duty).build());
         try (Connection connection = dataSource.getConnection()) {
             ScriptUtils.executeSqlScript(connection, new ClassPathResource("AddOffersForOrdersBeforeAll.sql"));
         } catch (SQLException e) {
@@ -62,16 +66,16 @@ class OrdersServiceTest {
         UnderDuty underDuty = underDutyService.findById(1L);
         orders = Orders.builder()
                 .customer(customer)
-                .proposedPrice(750_000L)
+                .proposedPrice(75000L)
                 .description("Repairing a vacuum cleaner.")
-                .dateAndTime(LocalDateTime.of(2023,10,20,11,15))
+                .dateAndTime(LocalDateTime.of(2024,10,20,11,15))
                 .address("Fars, Shiraz")
                 .orderStatus(WAITING_FOR_THE_SUGGESTION_OF_EXPERTS)
                 .underDuty(underDuty)
                 .build();
         ordersWithLessProposedPrice = Orders.builder()
                 .customer(customer)
-                .proposedPrice(600_000L)
+                .proposedPrice(600L)
                 .description("Repairing a vacuum cleaner.")
                 .dateAndTime(LocalDateTime.of(2023,10,20,11,15))
                 .address("Fars, Shiraz")
@@ -80,7 +84,7 @@ class OrdersServiceTest {
                 .build();
         ordersWithInvalidTime = Orders.builder()
                 .customer(customer)
-                .proposedPrice(750_000L)
+                .proposedPrice(75000L)
                 .description("Repairing a vacuum cleaner.")
                 .dateAndTime(LocalDateTime.of(2023,10,20,11,15))
                 .address("Fars, Shiraz")
@@ -172,7 +176,7 @@ class OrdersServiceTest {
     void findOrderInOrdersList() {
         Orders foundedOrder = ordersService.findOrderInOrdersList(1L, 1L);
 
-        assertThat(foundedOrder.getProposedPrice()).isEqualTo(750_000);
+        assertThat(foundedOrder.getProposedPrice()).isEqualTo(75000L);
     }
 
     @DisplayName("JUnit test for select offer method")

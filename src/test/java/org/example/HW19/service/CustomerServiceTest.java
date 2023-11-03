@@ -27,10 +27,10 @@ class CustomerServiceTest {
 
     @BeforeEach
     void setUp() {
-        User user = userService.findById(1L);
+        //User user = userService.findById(1L);
         customer = Customer.builder()
                 .validity(1_000_000L)
-                .user(user).build();
+                .build();
     }
 
     @DisplayName("JUnit test for saveCustomer method")

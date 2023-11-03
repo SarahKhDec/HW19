@@ -30,7 +30,7 @@ public class Orders extends BaseEntity<Long> {
     @Enumerated(EnumType.STRING)
     OrderStatus orderStatus;
 
-    @OneToOne()
+    @ManyToOne()
     UnderDuty underDuty;
 
     @OneToOne()
